@@ -27,13 +27,13 @@ const CreateAccountScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#5C2B81",
+    backgroundColor: "#5c2b81",
     width: "100%",
     alignItems: "center",
   },
   createTitle: {
     marginTop: 160,
-    fontFamily: "LifeSavers-ExtraBold",
+    fontFamily: "Lora-Bold",
     fontSize: 26,
     textTransform: "uppercase",
     color: "#ffffff",
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginLeft: 10,
-    fontFamily: "LifeSavers-ExtraBold",
+    fontFamily: "Lora-Bold",
     fontSize: 14,
     textTransform: "uppercase",
     color: "#ffffff",
@@ -85,10 +85,10 @@ const styles = StyleSheet.create({
     borderColor: "#000000",
     borderRadius: 10,
     justifyContent: "center",
-    backgroundColor: "#B83C96",
+    backgroundColor: "#b83c96",
   },
   createText: {
-      fontFamily: "LifeSavers-ExtraBold",
+      fontFamily: "Lora-Bold",
       fontSize: 18,
       textTransform: "uppercase",
       color: "#ffffff",

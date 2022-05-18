@@ -4,14 +4,17 @@ import firebaseConfig from "./services/firebase";
 import { useFonts } from "expo-font";
 import LoginScreen from "./screens/LoginScreen";
 import CreateAccountScreen from "./screens/CreateAccountScreen";
+import DiaryScreen from "./screens/DiaryScreen";
+import DeleteModalComponent from "./components/DeleteModalComponent";
+import EmptyEntryComponent from "./components/EmptyEntryComponent";
+import EntryWithContentComponent from "./components/EntryWithContentComponent";
 
 firebase.initializeApp(firebaseConfig);
 
 export default function App() {
   let [fontsLoaded] = useFonts({
-    'LifeSavers-Regular': require("./assets/fonts/life-savers/LifeSavers-Regular.ttf"),
-    'LifeSavers-Bold': require("./assets/fonts/life-savers/LifeSavers-Bold.ttf"),
-    'LifeSavers-ExtraBold': require("./assets/fonts/life-savers/LifeSavers-ExtraBold.ttf"),
+    'Lora-Regular': require("./assets/fonts/lora/Lora-Regular.ttf"),
+    'Lora-Bold': require("./assets/fonts/lora/Lora-Bold.ttf"),
   });
 
   if (!fontsLoaded) {
@@ -20,7 +23,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <CreateAccountScreen />
+      <EntryWithContentComponent />
     </View>
   );
 }
