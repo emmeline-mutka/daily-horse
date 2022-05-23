@@ -1,26 +1,57 @@
+import { useState } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackScreens } from "../helpers/types";
 import { StyleSheet, Text, TextInput, View, Image, Pressable } from "react-native";
 //@ts-ignore
 import logoImg from "../assets/img/dh-logo.png";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-const LoginScreen = () => {
+interface ILoginScreen extends NativeStackScreenProps<StackScreens, "LoginScreen"> {
+}
+
+export const LoginScreen: React.FC<ILoginScreen> = (props) => {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoginPressed, setIsLoginPressed] = useState(false);
+  const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const auth = getAuth();
+  const loginUser = () => {
+  signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    props.navigation.navigate("DiaryScreen")
+    const user = userCredential.user;
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+  });
+  };
+  const createAccountNavigation = () => {
+    props.navigation.navigate("CreateAccountScreen")
+  }
+
   return (
     <View style={styles.container}>
       <Image style={styles.dhLogo} source={logoImg} />
       <View style={styles.loginContainer}>
         <View style={styles.emailContainer}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.emailInput} />
+          <TextInput style={styles.emailInput} onChangeText={(text) => setEmail(text)}
+        value={email} />
         </View>
         <View style={styles.passwordContainer}>
           <Text style={styles.label}>Lösenord</Text>
-          <TextInput style={styles.passwordInput} />
+          <TextInput style={styles.passwordInput} secureTextEntry={true} onChangeText={(text) => setPassword(text)}
+        value={password} />
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Pressable style={styles.loginButton}>
+        <Pressable style={isLoginPressed ? [styles.loginButton, styles.onPressIn] : styles.loginButton} onPressIn={() => {setIsLoginPressed(true)}} onPressOut={() => {setIsLoginPressed(false)}} onPress={loginUser}>
           <Text style={styles.loginText}>Logga in</Text>
         </Pressable>
-        <Pressable style={styles.createButton}>
+        <Pressable style={isRegisterPressed ? [styles.createButton, styles.onPressIn] : styles.createButton} onPressIn={() => {setIsRegisterPressed(true)}} onPressOut={() => {setIsRegisterPressed(false)}} onPress={createAccountNavigation}>
           <Text style={styles.createText}>Skapa konto</Text>
         </Pressable>
       </View>
@@ -33,7 +64,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffffff",
     alignItems: "center",
-    marginTop: 100,
+    paddingTop: 80,
   },
   dhLogo: {
     width: 275,
@@ -43,7 +74,7 @@ const styles = StyleSheet.create({
   loginContainer: {
     position: "absolute",
     top: 200,
-    marginTop: 60,
+    marginTop: 100,
   },
   emailContainer: {
     marginBottom: 20,
@@ -52,6 +83,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     height: 30,
     width: 300,
+    fontFamily: "Lora-Regular",
     borderWidth: 1,
     borderColor: "#000000",
     borderRadius: 10,
@@ -69,6 +101,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     height: 30,
     width: 300,
+    fontFamily: "Lora-Regular",
     borderWidth: 1,
     borderColor: "#000000",
     borderRadius: 10,
@@ -88,6 +121,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#5c2b81",
 
+  },
+  onPressIn: {
+    backgroundColor: "#1e9ed1",
   },
   loginText: {
     fontFamily: "Lora-Bold",
@@ -113,5 +149,3 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
 });
-
-export default LoginScreen;

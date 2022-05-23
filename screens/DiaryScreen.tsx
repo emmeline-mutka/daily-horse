@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackScreens } from "../helpers/types";
 import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 //@ts-ignore
-import EntryButtonComponent from "../components/EntryButtonComponent";
-import EmptyEntryComponent from "../components/EmptyEntryComponent";
+import { EntryButtonComponent } from "../components/EntryButtonComponent";
 
-const DiaryScreen = () => {
+interface IDiaryScreen extends NativeStackScreenProps<StackScreens, "DiaryScreen"> {
+}
+
+export const DiaryScreen: React.FC<IDiaryScreen> = (props) => {
   const [content, setContent] = useState("default");
   const [displayingContent, setDisplayingContent] = useState(null);
+  const emptyEntryNavigation = () => {
+    props.navigation.navigate("EmptyEntryScreen")
+  }
 
-  // function displayContent(checkContent) {
+  // const displayContent(checkContent) {
   //   switch (checkContent) {
   //     case "emptyEntry":
   //       setDisplayingContent(<EmptyEntryComponent />);
-  //       break;
-  //     case "feed":
-  //       setDisplayingContent(<FeedComponent />);
-  //       break;
-  //     case "appointment":
-  //       setDisplayingContent(<AppointmentComponent />);
   //       break;
   //     default:
   //       setDisplayingContent(<View style={styles.noEntry} />);
@@ -37,7 +38,7 @@ const DiaryScreen = () => {
         </Text>
       </View>
       <View style={styles.entryButton}>
-        <EntryButtonComponent />
+        <EntryButtonComponent triggerFunction={emptyEntryNavigation} />
       </View>
     </View>
   );
@@ -68,13 +69,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   noEntryText: {
-    fontFamily: "Lora-Bold",
-    fontSize: 14,
+    fontFamily: "Lora-Regular",
+    fontSize: 16,
     alignSelf: "center",
   },
   entryButton: {
     marginTop: 50,
   },
 });
-
-export default DiaryScreen;

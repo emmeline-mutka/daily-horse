@@ -1,28 +1,64 @@
-import React, { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView } from "react-native";
+import React, { useState } from "react";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView } from "react-native";
 //@ts-ignore
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackScreens } from "../helpers/types";
 
-const EmptyEntryComponent = () => {
+interface IEmptyEntryScreen extends NativeStackScreenProps<StackScreens, "EmptyEntryScreen"> {
+
+}
+
+export const EmptyEntryScreen: React.FC<IEmptyEntryScreen> = (props) => {
+  const firestore = getFirestore()
+  const auth = getAuth()
+  const [entryDate, setEntryDate] = useState(String);
+  const [entryTitle, setEntryTitle] = useState(String);
+  const [diaryEntry, setDiaryEntry] = useState(String);
+
+  const goBackNav = () => {
+    props.navigation.goBack()
+  } 
+
+const addEntries = async () => {
+  if (auth.currentUser) {
+    const uid = auth.currentUser.uid
+    try {
+      const docRef = await addDoc(collection(firestore, uid), {
+        date: entryDate,
+        title: entryTitle,
+        entry: diaryEntry
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+  }
+ 
+  
   return (
     <SafeAreaView style={styles.container}>
-      <Pressable style={styles.arrowBack}>
-      <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
+      <Pressable style={styles.arrowBack} onPress={goBackNav}>
+        <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
       </Pressable>
       <View style={styles.dateAndTitleContainer}>
-        <TextInput placeholder="Datum" style={styles.dateInput}></TextInput>
-        <TextInput placeholder="Rubrik" style={styles.titleInput}></TextInput>
+        <TextInput placeholder="Datum" onChangeText={(text) => setEntryDate(text)} style={styles.dateInput}></TextInput>
+        <TextInput placeholder="Rubrik" onChangeText={(text) => setEntryTitle(text)} style={styles.titleInput}></TextInput>
       </View>
       <View style={styles.entryContainer}>
-        <TextInput multiline={true} style={styles.entryText}></TextInput>
+        <TextInput multiline={true} onChangeText={(text) => setDiaryEntry(text)} style={styles.entryText}></TextInput>
       </View>
-      <Pressable style={styles.saveButton}>
+      <Pressable style={styles.saveButton} onPress= {() => addEntries()}>
         <Text style={styles.saveText}>Spara</Text>
       </Pressable>
       <Pressable style={styles.deleteButton}>
         <Text style={styles.deleteText}>Ta bort</Text>
       </Pressable>
     </SafeAreaView>
-  ) 
+  );
 };
 
 const styles = StyleSheet.create({
@@ -52,10 +88,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
     textAlign: "center",
-  }, 
+  },
   titleInput: {
     paddingLeft: 10,
-    // height: 50,
     width: 300,
     fontFamily: "Lora-Bold",
     fontSize: 24,
@@ -75,8 +110,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   entryText: {
-    paddingTop: 10,
-    paddingLeft: 10,
+    padding: 15,
     height: 350,
     width: 300,
     fontFamily: "Lora-Regular",
@@ -116,7 +150,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     color: "#ffffff",
     alignSelf: "center",
-  }
-})
+  },
+});
 
-export default EmptyEntryComponent;
