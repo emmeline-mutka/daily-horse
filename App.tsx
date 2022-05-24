@@ -1,7 +1,7 @@
 import React from "react";
+import { ContextProvider } from "./context/Context";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
-import { StyleSheet, Text, View } from "react-native";
 import * as firebase from "firebase/app";
 import firebaseConfig from "./services/firebase";
 import { useFonts } from "expo-font";
@@ -10,9 +10,7 @@ import { LoginScreen } from "./screens/LoginScreen";
 import { CreateAccountScreen } from "./screens/CreateAccountScreen";
 import { DiaryScreen } from "./screens/DiaryScreen";
 import { EmptyEntryScreen } from "./screens/EmptyEntryScreen";
-import DeleteModalComponent from "./components/DeleteModalComponent";
-import EntryWithContentComponent from "./components/EntryWithContentComponent";
-import EditEntryComponent from "./components/EditEntryComponent";
+import { EntryDetailsScreen } from "./screens/EntryDetailsScreen";
 
 firebase.initializeApp(firebaseConfig);
 
@@ -29,57 +27,51 @@ export default function App() {
   const Stack = createNativeStackNavigator<StackScreens>();
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginScreen">
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{
-            header: () => null,
-            headerShown: false
-          }}
-        />
-        <Stack.Screen
-          name="CreateAccountScreen"
-          component={CreateAccountScreen}
-          options={{
-            headerShown: false
-          }}
-        />
-        <Stack.Screen
-          name="DiaryScreen"
-          component={DiaryScreen}
-          options={{
-            headerShown: false
-          }}
-        />
-        <Stack.Screen
-          name="EmptyEntryScreen"
-          component={EmptyEntryScreen}
-          options={{
-            headerShown: false
-          }}
+    <ContextProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="LoginScreen">
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{
+              header: () => null,
+              headerShown: false,
+            }}
           />
-      </Stack.Navigator>
-    </NavigationContainer>
-
-    // <View style={styles.container}>
-    //   <LoginScreen />
-    //   {/* <CreateAccountScreen /> */}
-    //   {/* <DiaryScreen /> */}
-    //   {/* <EmptyEntryComponent /> */}
-    //   {/* <DeleteModalComponent /> */}
-    //   {/* <EntryWithContentComponent /> */}
-    //   {/* <EditEntryComponent /> */}
-    // </View>
+          <Stack.Screen
+            name="CreateAccountScreen"
+            component={CreateAccountScreen}
+            options={{
+              header: () => null,
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="DiaryScreen"
+            component={DiaryScreen}
+            options={{
+              header: () => null,
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EmptyEntryScreen"
+            component={EmptyEntryScreen}
+            options={{
+              header: () => null,
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EntryDetailsScreen"
+            component={EntryDetailsScreen}
+            options={{
+              header: () => null,
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ContextProvider>
   );
 }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// });

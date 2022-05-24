@@ -1,27 +1,35 @@
-import { StyleSheet, Text, TextInput, View, SafeAreaView, Pressable } from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, Text, View, SafeAreaView, Pressable } from "react-native";
 //@ts-ignore
 import { Ionicons } from "@expo/vector-icons";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackScreens } from "../helpers/types";
+import { Context } from "../context/Context";
+interface IEntryDetailsScreen extends NativeStackScreenProps<StackScreens, "EntryDetailsScreen"> {item: any}
 
-const EditEntryComponent = () => {
+export const EntryDetailsScreen: React.FC<IEntryDetailsScreen> = (props) => {
+  const context = useContext(Context);
+  const goBackNav = () => {
+    props.navigation.goBack()
+  }
+  const editEntryNavigation = () => {
+    props.navigation.navigate("EmptyEntryScreen")
+    context?.setIsEditing(true) 
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Pressable style={styles.arrowBack}>
+      <Pressable style={styles.arrowBack} onPress={goBackNav}>
         <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
       </Pressable>
       <View style={styles.dateAndTitleContainer}>
-        <Text style={styles.dateText}>14/5</Text>
-        <Text style={styles.titleText}>Dressyr</Text>
+        <Text style={styles.dateText}>{context?.item.date}</Text>
+        <Text style={styles.titleText}>{context?.item.title}</Text>
       </View>
       <View style={styles.entryContainer}>
-        <Text style={styles.entryText}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, 
-        eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-        </Text>
+        <Text style={styles.entryText}>{context?.item.entry}</Text>
       </View>
-      <Pressable style={styles.editButton}>
+      <Pressable style={styles.editButton} onPress={editEntryNavigation}>
         <Text style={styles.editText}>Redigera</Text>
       </Pressable>
     </SafeAreaView>
@@ -105,5 +113,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
-export default EditEntryComponent;

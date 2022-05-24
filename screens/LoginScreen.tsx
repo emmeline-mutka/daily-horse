@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
-import { StyleSheet, Text, TextInput, View, Image, Pressable } from "react-native";
+import { StyleSheet, Text, TextInput, View, Image, Pressable, SafeAreaView } from "react-native";
 //@ts-ignore
 import logoImg from "../assets/img/dh-logo.png";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -29,11 +29,11 @@ export const LoginScreen: React.FC<ILoginScreen> = (props) => {
   });
   };
   const createAccountNavigation = () => {
-    props.navigation.navigate("CreateAccountScreen")
-  }
+    props.navigation.navigate("CreateAccountScreen");
+  };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Image style={styles.dhLogo} source={logoImg} />
       <View style={styles.loginContainer}>
         <View style={styles.emailContainer}>
@@ -47,21 +47,21 @@ export const LoginScreen: React.FC<ILoginScreen> = (props) => {
         value={password} />
         </View>
       </View>
-      <View style={styles.buttonContainer}>
         <Pressable style={isLoginPressed ? [styles.loginButton, styles.onPressIn] : styles.loginButton} onPressIn={() => {setIsLoginPressed(true)}} onPressOut={() => {setIsLoginPressed(false)}} onPress={loginUser}>
           <Text style={styles.loginText}>Logga in</Text>
         </Pressable>
         <Pressable style={isRegisterPressed ? [styles.createButton, styles.onPressIn] : styles.createButton} onPressIn={() => {setIsRegisterPressed(true)}} onPressOut={() => {setIsRegisterPressed(false)}} onPress={createAccountNavigation}>
           <Text style={styles.createText}>Skapa konto</Text>
         </Pressable>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: "100%",
+    width: "100%",
     backgroundColor: "#ffffff",
     alignItems: "center",
     paddingTop: 80,
@@ -72,9 +72,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   loginContainer: {
-    position: "absolute",
-    top: 200,
-    marginTop: 100,
+    marginVertical: 40,
   },
   emailContainer: {
     marginBottom: 20,
@@ -106,10 +104,6 @@ const styles = StyleSheet.create({
     borderColor: "#000000",
     borderRadius: 10,
   },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 150,
-  },
   loginButton: {
     height: 50,
     width: 300,
@@ -120,7 +114,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     backgroundColor: "#5c2b81",
-
   },
   onPressIn: {
     backgroundColor: "#1e9ed1",

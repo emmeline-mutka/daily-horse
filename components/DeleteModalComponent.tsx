@@ -1,7 +1,12 @@
+import { collection, deleteDoc, doc } from "firebase/firestore";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 //@ts-ignore
 
 const DeleteModal = () => {
+  // const deleteEntries = async () => {
+  // await deleteDoc(doc(collection));
+  // }
+
   return (
     <View style={styles.container}>
       <Text style={styles.deleteText}>Vill du ta bort det här inlägget?</Text>

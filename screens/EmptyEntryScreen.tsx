@@ -1,57 +1,115 @@
-import React, { useState } from "react";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import React, { FC, useContext, useEffect, useState } from "react";
+import {
+  addDoc,
+  collection,
+  doc,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Pressable,
+  SafeAreaView,
+} from "react-native";
 //@ts-ignore
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
+import { Context } from "../context/Context";
 
-interface IEmptyEntryScreen extends NativeStackScreenProps<StackScreens, "EmptyEntryScreen"> {
+interface IEmptyEntryScreen
+  extends NativeStackScreenProps<StackScreens, "EmptyEntryScreen"> {}
 
-}
-
-export const EmptyEntryScreen: React.FC<IEmptyEntryScreen> = (props) => {
-  const firestore = getFirestore()
-  const auth = getAuth()
+export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
+  const context = useContext(Context);
+  const firestore = getFirestore();
+  const auth = getAuth();
+  const uid = auth.currentUser?.uid;
   const [entryDate, setEntryDate] = useState(String);
   const [entryTitle, setEntryTitle] = useState(String);
   const [diaryEntry, setDiaryEntry] = useState(String);
+  
+  let id = context?.item.id;
+  let entryRef: any;
+  // if (uid) {
+  //   entryRef = doc(firestore, uid, id)
+  //   console.log("Entry Ref: ", entryRef)
+  // }
 
   const goBackNav = () => {
-    props.navigation.goBack()
-  } 
+    props.navigation.goBack();
+    context?.setIsEditing(false)
+  };
 
-const addEntries = async () => {
-  if (auth.currentUser) {
-    const uid = auth.currentUser.uid
-    try {
-      const docRef = await addDoc(collection(firestore, uid), {
-        date: entryDate,
-        title: entryTitle,
-        entry: diaryEntry
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
+  const addEntries = async () => {
+    if (auth.currentUser) {
+      try {
+        const docRef = await addDoc(collection(firestore, uid!), {
+          date: entryDate,
+          title: entryTitle,
+          entry: diaryEntry,
+          id: "",
+        });
+        await updateDoc(docRef, {
+          id: docRef.id,
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
     }
-  }
-  }
- 
-  
+  };
+
+  const updateEntries = async () => {
+    await updateDoc(entryRef, {
+      date: entryDate,
+      title: entryTitle,
+      entry: diaryEntry,
+    });
+    context?.setIsEditing(false)
+  };
+
+  useEffect(() => {
+    if (context?.isEditing) {
+    setEntryDate(context?.item.date)
+    setEntryTitle(context?.item.title)
+    setDiaryEntry(context?.item.entry)
+    }
+  }, [context?.isEditing])
+
   return (
     <SafeAreaView style={styles.container}>
       <Pressable style={styles.arrowBack} onPress={goBackNav}>
         <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
       </Pressable>
       <View style={styles.dateAndTitleContainer}>
-        <TextInput placeholder="Datum" onChangeText={(text) => setEntryDate(text)} style={styles.dateInput}></TextInput>
-        <TextInput placeholder="Rubrik" onChangeText={(text) => setEntryTitle(text)} style={styles.titleInput}></TextInput>
+        <TextInput
+          placeholder="Datum"
+          onChangeText={(value) => setEntryDate(value)}
+          style={styles.dateInput}
+          value={entryDate}
+        ></TextInput>
+        <TextInput
+          placeholder="Rubrik"
+          onChangeText={(value) => setEntryTitle(value)}
+          style={styles.titleInput}
+          value={entryTitle}
+        ></TextInput>
       </View>
       <View style={styles.entryContainer}>
-        <TextInput multiline={true} onChangeText={(text) => setDiaryEntry(text)} style={styles.entryText}></TextInput>
+        <TextInput
+          multiline={true}
+          onChangeText={(value) => setDiaryEntry(value)}
+          style={styles.entryText}
+          value={diaryEntry}
+        ></TextInput>
       </View>
-      <Pressable style={styles.saveButton} onPress= {() => addEntries()}>
+      {/* <Pressable style={styles.saveButton} onPress={ context?.isEditing ? updateEntries : () => addEntries()}> */}
+      <Pressable style={styles.saveButton} onPress={ () => addEntries()}>
         <Text style={styles.saveText}>Spara</Text>
       </Pressable>
       <Pressable style={styles.deleteButton}>
@@ -152,4 +210,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
