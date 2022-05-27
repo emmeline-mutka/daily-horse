@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import {
   collection,
   doc,
@@ -9,21 +9,31 @@ import {
 import { getAuth } from "firebase/auth";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 //@ts-ignore
 import { EntryButtonComponent } from "../components/EntryButtonComponent";
 import { EntryComponent } from "../components/EntryComponent";
 import { Context } from "../context/Context";
+import { useIsFocused } from "@react-navigation/native";
 
 interface IDiaryScreen
   extends NativeStackScreenProps<StackScreens, "DiaryScreen"> {}
 
-export const DiaryScreen: React.FC<IDiaryScreen> = (props) => {
+export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   const context = useContext(Context);
   const [entryList, setEntryList] = useState<any[]>([]);
+  const [entryIndex, setEntryIndex] = useState(Number);
   const emptyEntryNavigation = () => {
     props.navigation.navigate("EmptyEntryScreen");
   };
+  const isFocused = useIsFocused();
 
   const firestore = getFirestore();
   const auth = getAuth();
@@ -48,14 +58,44 @@ export const DiaryScreen: React.FC<IDiaryScreen> = (props) => {
     }
   };
 
+  const filterEntries = async () => {
+    if (auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      try {
+        const docRef = await getDocs(collection(firestore, uid));
+        docRef.forEach((entryItem) => {
+          console.log("Här finns ett inlägg: ", entryItem.data());
+          setEntryList(entryList.filter((_, i) => i !== entryIndex));
+        });
+      } catch (e) {
+        console.error("Error reading document:", e);
+      }
+    }
+  };
+
   const entryDetailsNavigation = (item: any) => {
-    context?.setItem(item)
+    context?.setItem(item);
     props.navigation.navigate("EntryDetailsScreen");
   };
 
   useEffect(() => {
     readEntries();
-  }, []);
+    console.log("Focused ", isFocused);
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (context?.entryDeleted) {
+      filterEntries();
+      console.log("Filtered entries ", entryList);
+      context?.setEntryDeleted(false);
+      context?.setItem({
+        date: "",
+        title: "",
+        entry: "",
+        id: "",
+      });
+    }
+  }, [context?.entryDeleted]);
 
   useEffect(() => {
     console.log("EntryList: ", entryList);
@@ -63,26 +103,39 @@ export const DiaryScreen: React.FC<IDiaryScreen> = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.diaryTitle}>Dagbok</Text>
-      {entryList.length > 0 ? (
-        <View>
-          {entryList.map((item: {}, index: number) => {
-            return ( <Pressable onPress={() => entryDetailsNavigation(item)} key={index}>
-            <EntryComponent item={item} />
-            </Pressable>);
-          })}
-        </View>
-      ) : (
-        <View style={styles.noEntryContainer}>
-          <Text style={styles.noEntryText}>
-            Du har inte lagt till något ännu...
-          </Text>
-        </View>
-      )}
+      <ScrollView
+        contentContainerStyle={styles.contentContainerStyle}
+        style={styles.scrollviewContainer}
+      >
+        <Text style={styles.diaryTitle}>Dagbok</Text>
+        {entryList.length > 0 ? (
+          <View>
+            {entryList.map((item: {}, index: number) => {
+              return (
+                <Pressable
+                  onPress={() => [
+                    entryDetailsNavigation(item),
+                    setEntryIndex(index),
+                  ]}
+                  key={index}
+                >
+                  <EntryComponent item={item} />
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : (
+          <View style={styles.noEntryContainer}>
+            <Text style={styles.noEntryText}>
+              Du har inte lagt till något ännu...
+            </Text>
+          </View>
+        )}
 
-      <View style={styles.entryButton}>
-        <EntryButtonComponent triggerFunction={emptyEntryNavigation} />
-      </View>
+        <View style={styles.entryButton}>
+          <EntryButtonComponent navigateToEmptyEntry={emptyEntryNavigation} />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -95,15 +148,19 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  contentContainerStyle: {
+    alignItems: "center",
+  },
+  scrollviewContainer: {
+    width: "100%",
+    alignContent: "center",
+  },
   diaryTitle: {
     marginTop: 40,
     fontFamily: "Lora-Bold",
     fontSize: 32,
     textTransform: "uppercase",
     color: "#ffffff",
-  },
-  entriesContainer: {
-    marginBottom: 20,
   },
   noEntryContainer: {
     marginTop: 25,
@@ -121,6 +178,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   entryButton: {
-    marginTop: 50,
+    marginVertical: 50,
   },
 });

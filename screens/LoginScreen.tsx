@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
 import { StyleSheet, Text, TextInput, View, Image, Pressable, SafeAreaView } from "react-native";
 //@ts-ignore
 import logoImg from "../assets/img/dh-logo.png";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { Context } from "../context/Context";
 
 interface ILoginScreen extends NativeStackScreenProps<StackScreens, "LoginScreen"> {
 }
 
 export const LoginScreen: React.FC<ILoginScreen> = (props) => {
-
+  const context = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoginPressed, setIsLoginPressed] = useState(false);
@@ -21,7 +22,6 @@ export const LoginScreen: React.FC<ILoginScreen> = (props) => {
   .then((userCredential) => {
     props.navigation.navigate("DiaryScreen")
     const user = userCredential.user;
-    // ...
   })
   .catch((error) => {
     const errorCode = error.code;

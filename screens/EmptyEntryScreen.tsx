@@ -2,7 +2,9 @@ import React, { FC, useContext, useEffect, useState } from "react";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
+  getDoc,
   getFirestore,
   updateDoc,
 } from "firebase/firestore";
@@ -14,12 +16,15 @@ import {
   View,
   Pressable,
   SafeAreaView,
+  Modal,
+  Alert,
 } from "react-native";
 //@ts-ignore
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
 import { Context } from "../context/Context";
+import { DeleteModalComponent } from "../components/DeleteModalComponent";
 
 interface IEmptyEntryScreen
   extends NativeStackScreenProps<StackScreens, "EmptyEntryScreen"> {}
@@ -32,17 +37,15 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
   const [entryDate, setEntryDate] = useState(String);
   const [entryTitle, setEntryTitle] = useState(String);
   const [diaryEntry, setDiaryEntry] = useState(String);
-  
+  const [modalVisible, setModalVisible] = useState(false);
+
   let id = context?.item.id;
   let entryRef: any;
-  // if (uid) {
-  //   entryRef = doc(firestore, uid, id)
-  //   console.log("Entry Ref: ", entryRef)
-  // }
+  let entrySnapshot: any;
 
   const goBackNav = () => {
     props.navigation.goBack();
-    context?.setIsEditing(false)
+    context?.setIsEditing(false);
   };
 
   const addEntries = async () => {
@@ -58,6 +61,7 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
           id: docRef.id,
         });
         console.log("Document written with ID: ", docRef.id);
+        props.navigation.navigate("DiaryScreen");
       } catch (e) {
         console.error("Error adding document: ", e);
       }
@@ -65,24 +69,36 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
   };
 
   const updateEntries = async () => {
-    await updateDoc(entryRef, {
+    if (uid) {
+      entryRef = doc(firestore, uid, id);
+      entrySnapshot = await getDoc(entryRef);
+      console.log("Entry Ref: ", entryRef);
+    }
+    await updateDoc(entrySnapshot, {
       date: entryDate,
       title: entryTitle,
       entry: diaryEntry,
     });
-    context?.setIsEditing(false)
+    context?.setIsEditing(false);
+  };
+
+  const deleteEntries = async () => {
+    await deleteDoc(doc(firestore, uid!, id));
+    console.log("Här är borttaget id: ", id);
+    context?.setEntryDeleted(true)
+    props.navigation.navigate("DiaryScreen");
   };
 
   useEffect(() => {
     if (context?.isEditing) {
-    setEntryDate(context?.item.date)
-    setEntryTitle(context?.item.title)
-    setDiaryEntry(context?.item.entry)
+      setEntryDate(context?.item.date);
+      setEntryTitle(context?.item.title);
+      setDiaryEntry(context?.item.entry);
     }
-  }, [context?.isEditing])
+  }, [context?.isEditing]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={modalVisible ? [styles.container, styles.faded] : styles.container}>
       <Pressable style={styles.arrowBack} onPress={goBackNav}>
         <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
       </Pressable>
@@ -108,11 +124,35 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
           value={diaryEntry}
         ></TextInput>
       </View>
-      {/* <Pressable style={styles.saveButton} onPress={ context?.isEditing ? updateEntries : () => addEntries()}> */}
-      <Pressable style={styles.saveButton} onPress={ () => addEntries()}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalView}>
+          <DeleteModalComponent
+            yesButton={() => deleteEntries()}
+            noButton={() => {
+              setModalVisible(!modalVisible);
+            }}
+          />
+        </View>
+      </Modal>
+      <Pressable
+        style={styles.saveButton}
+        onPress={context?.isEditing ? updateEntries : () => addEntries()}
+      >
+        {/* <Pressable style={styles.saveButton} onPress={ () => addEntries()}> */}
         <Text style={styles.saveText}>Spara</Text>
       </Pressable>
-      <Pressable style={styles.deleteButton}>
+      <Pressable
+        style={styles.deleteButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={styles.deleteText}>Ta bort</Text>
       </Pressable>
     </SafeAreaView>
@@ -127,6 +167,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#5c2b81",
     alignItems: "center",
   },
+  faded: {
+    opacity: 0.2, 
+  },
   arrowBack: {
     position: "absolute",
     top: 30,
@@ -140,6 +183,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingTop: 0,
     width: 200,
+    color: "#ffffff",
     fontFamily: "Lora-Bold",
     fontSize: 24,
     textTransform: "uppercase",
@@ -150,6 +194,7 @@ const styles = StyleSheet.create({
   titleInput: {
     paddingLeft: 10,
     width: 300,
+    color: "#ffffff",
     fontFamily: "Lora-Bold",
     fontSize: 24,
     textTransform: "uppercase",
@@ -162,7 +207,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     height: 350,
     width: 300,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#ffffff96",
     borderWidth: 1,
     borderColor: "#000000",
     borderRadius: 10,
@@ -175,6 +220,41 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000000",
     borderRadius: 10,
+  },
+  modalView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalText: {
+    color: "#ffffff",
+  },
+  yesButton: {
+    marginTop: 20,
+    backgroundColor: "#b83c96",
+    height: 50,
+    width: 150,
+    borderWidth: 2,
+    borderColor: "#000000",
+    borderRadius: 10,
+    justifyContent: "center",
+  },
+  noButton: {
+    marginTop: 20,
+    backgroundColor: "#1e9ed1",
+    height: 50,
+    width: 150,
+    borderWidth: 2,
+    borderColor: "#000000",
+    borderRadius: 10,
+    justifyContent: "center",
+  },
+  answerText: {
+    fontFamily: "Lora-Bold",
+    fontSize: 16,
+    textTransform: "uppercase",
+    color: "#ffffff",
+    alignSelf: "center",
   },
   saveButton: {
     marginBottom: 25,

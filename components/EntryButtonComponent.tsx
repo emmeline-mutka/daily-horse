@@ -9,9 +9,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 // export const EntryButtonComponent: React.FC<IEntryButtonComponent> = (props) => {
-  export const EntryButtonComponent = ({triggerFunction}: any) => {
+  export const EntryButtonComponent = ({navigateToEmptyEntry}: any) => {
   return (
-    <Pressable style={styles.entryButton} onPress= {() => triggerFunction()}>
+    <Pressable style={styles.entryButton} onPress= {() => navigateToEmptyEntry()}>
       <MaterialCommunityIcons name="book-edit-outline" size={48} color="#e3e3e3" />
     </Pressable>
   );
