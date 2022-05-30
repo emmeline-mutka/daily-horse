@@ -1,14 +1,28 @@
+import { getAuth } from "firebase/auth";
+import { collection, deleteDoc, doc, getFirestore } from "firebase/firestore";
+import { FC, useContext } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
+import { Context } from "../context/Context";
 //@ts-ignore
 
-const DeleteModal = () => {
+interface IDeleteModalComponent {
+  yesButton: () => void;
+  noButton: () => void;
+}
+
+export const DeleteModalComponent: FC<IDeleteModalComponent> = (props) => { 
+  const context = useContext(Context);
+  const firestore = getFirestore();
+  const auth = getAuth();
+  const uid = auth.currentUser?.uid;
+
   return (
     <View style={styles.container}>
       <Text style={styles.deleteText}>Vill du ta bort det här inlägget?</Text>
-      <Pressable style={styles.yesButton}>
+      <Pressable style={styles.yesButton} onPress={props.yesButton}>
         <Text style={styles.answerText}>Ja</Text>
       </Pressable>
-      <Pressable style={styles.noButton}>
+      <Pressable style={styles.noButton} onPress={props.noButton}>
       <Text style={styles.answerText}>Nej</Text>
       </Pressable>
     </View>
@@ -17,11 +31,19 @@ const DeleteModal = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    width: "100%",
+    display: "flex",
     backgroundColor: "#5c2b81",
+    borderRadius: 20,
+    padding: 35,
     alignItems: "center",
-    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
   },
   deleteText: {
     fontFamily: "Lora-Bold",
@@ -57,5 +79,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
-export default DeleteModal;

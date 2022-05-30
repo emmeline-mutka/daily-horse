@@ -1,22 +1,51 @@
+import { useState } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackScreens } from "../helpers/types";
 import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 //@ts-ignore
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
-const CreateAccountScreen = () => {
+interface ICreateAccountScreen extends NativeStackScreenProps<StackScreens, "CreateAccountScreen"> {
+}
+
+export const CreateAccountScreen: React.FC<ICreateAccountScreen> = (props) => {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isPressed, setIsPressed] = useState(false)
+  const auth = getAuth();
+  const registerUser = () => {
+    createUserWithEmailAndPassword (auth, email, password)
+  .then((userCredential) => {
+    props.navigation.navigate("DiaryScreen")
+    const user = userCredential.user;
+    console.log(user)
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorMessage)
+  });
+};
+  
   return (
     <View style={styles.container}>
       <Text style={styles.createTitle}>Skapa konto</Text>
       <View style={styles.createContainer}>
         <View style={styles.emailContainer}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.emailInput} />
+          <TextInput style={styles.emailInput} onChangeText={(text) => setEmail(text)}
+        value={email} />
         </View>
         <View style={styles.passwordContainer}>
           <Text style={styles.label}>Lösenord</Text>
-          <TextInput style={styles.passwordInput} />
+          <TextInput style={styles.passwordInput} secureTextEntry={true} onChangeText={(text) => setPassword(text)}
+        value={password} />
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Pressable style={styles.createButton}>
+        <Pressable style={isPressed ? [styles.createButton, styles.onPressIn] : styles.createButton} onPressIn={() => {setIsPressed(true)}} onPressOut={() => {setIsPressed(false)}} onPress={registerUser}>
+          
           <Text style={styles.createText}>Skapa konto</Text>
         </Pressable>
       </View>
@@ -50,6 +79,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     height: 30,
     width: 300,
+    fontFamily: "Lora-Regular",
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#000000",
@@ -69,6 +99,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     height: 30,
     width: 300,
+    fontFamily: "Lora-Regular",
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#000000",
@@ -87,6 +118,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#b83c96",
   },
+  onPressIn: {
+    backgroundColor: "#1e9ed1",
+  },
   createText: {
       fontFamily: "Lora-Bold",
       fontSize: 18,
@@ -95,5 +129,3 @@ const styles = StyleSheet.create({
       alignSelf: "center",
   },
 });
-
-export default CreateAccountScreen;
