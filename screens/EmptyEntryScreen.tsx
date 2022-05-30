@@ -18,6 +18,7 @@ import {
   SafeAreaView,
   Modal,
   Alert,
+  Button,
 } from "react-native";
 //@ts-ignore
 import { Ionicons } from "@expo/vector-icons";
@@ -34,11 +35,11 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
   const firestore = getFirestore();
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
-  const [entryDate, setEntryDate] = useState(String);
+  const [dateToday, setDateToday] = useState(null);
   const [entryTitle, setEntryTitle] = useState(String);
   const [diaryEntry, setDiaryEntry] = useState(String);
   const [modalVisible, setModalVisible] = useState(false);
-
+  
   let id = context?.item.id;
   let entryRef: any;
   let entrySnapshot: any;
@@ -52,7 +53,7 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
     if (auth.currentUser) {
       try {
         const docRef = await addDoc(collection(firestore, uid!), {
-          date: entryDate,
+          date: dateToday,
           title: entryTitle,
           entry: diaryEntry,
           id: "",
@@ -73,9 +74,10 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
       entryRef = doc(firestore, uid, id);
       entrySnapshot = await getDoc(entryRef);
       console.log("Entry Ref: ", entryRef);
+      props.navigation.navigate("DiaryScreen");
     }
-    await updateDoc(entrySnapshot, {
-      date: entryDate,
+    await updateDoc(entryRef, {
+      date: dateToday,
       title: entryTitle,
       entry: diaryEntry,
     });
@@ -85,32 +87,40 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
   const deleteEntries = async () => {
     await deleteDoc(doc(firestore, uid!, id));
     console.log("Här är borttaget id: ", id);
-    context?.setEntryDeleted(true)
+    context?.setEntryDeleted(true);
     props.navigation.navigate("DiaryScreen");
   };
 
   useEffect(() => {
+    let today = new Date();
+    let date: any = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    setDateToday(date);
+  }, []);
+
+  useEffect(() => {
     if (context?.isEditing) {
-      setEntryDate(context?.item.date);
+      setDateToday(context?.item.date);
       setEntryTitle(context?.item.title);
       setDiaryEntry(context?.item.entry);
     }
   }, [context?.isEditing]);
 
+  useEffect(() => {
+
+  })
+
   return (
-    <SafeAreaView style={modalVisible ? [styles.container, styles.faded] : styles.container}>
+    <SafeAreaView
+      style={modalVisible ? [styles.container, styles.faded] : styles.container}
+    >
       <Pressable style={styles.arrowBack} onPress={goBackNav}>
         <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
       </Pressable>
       <View style={styles.dateAndTitleContainer}>
-        <TextInput
-          placeholder="Datum"
-          onChangeText={(value) => setEntryDate(value)}
-          style={styles.dateInput}
-          value={entryDate}
-        ></TextInput>
+        <Text style={styles.dateText}>{dateToday}</Text>
         <TextInput
           placeholder="Rubrik"
+          multiline={true}
           onChangeText={(value) => setEntryTitle(value)}
           style={styles.titleInput}
           value={entryTitle}
@@ -168,7 +178,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   faded: {
-    opacity: 0.2, 
+    opacity: 0.2,
   },
   arrowBack: {
     position: "absolute",
@@ -178,11 +188,12 @@ const styles = StyleSheet.create({
   dateAndTitleContainer: {
     marginTop: 80,
   },
-  dateInput: {
+  dateText: {
     marginBottom: 2,
     paddingLeft: 10,
     paddingTop: 0,
-    width: 200,
+    height: 40,
+    width: 150,
     color: "#ffffff",
     fontFamily: "Lora-Bold",
     fontSize: 24,
