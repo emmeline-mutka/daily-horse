@@ -8,6 +8,8 @@ interface IContext {
   setIsEditing: (editing: boolean) => void
   entryDeleted: boolean;
   setEntryDeleted: (entryDeleted: boolean) => void
+  isUpdated: boolean;
+  setIsUpdated: (updated: boolean) => void
 }
 export const Context = createContext<IContext|undefined>(undefined);
 
@@ -15,6 +17,7 @@ export const ContextProvider: FC = (props) => {
   const [item, setItem] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [entryDeleted, setEntryDeleted] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
   return (
     <Context.Provider value={{
       item,
@@ -23,6 +26,8 @@ export const ContextProvider: FC = (props) => {
       setIsEditing,
       entryDeleted,
       setEntryDeleted,
+      isUpdated,
+      setIsUpdated,
     }}>
       {props.children}
       </Context.Provider>

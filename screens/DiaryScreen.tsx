@@ -73,6 +73,10 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
     }
   };
 
+  const updatedEntries = async () => {
+    
+  }
+
   const entryDetailsNavigation = (item: any) => {
     context?.setItem(item);
     props.navigation.navigate("EntryDetailsScreen");
@@ -166,7 +170,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
     height: 500,
     width: 300,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#ffffff96",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#000000",
