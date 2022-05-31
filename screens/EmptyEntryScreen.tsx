@@ -18,7 +18,6 @@ import {
   SafeAreaView,
   Modal,
   Alert,
-  Button,
 } from "react-native";
 //@ts-ignore
 import { Ionicons } from "@expo/vector-icons";
@@ -105,10 +104,6 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
     }
   }, [context?.isEditing]);
 
-  useEffect(() => {
-
-  })
-
   return (
     <SafeAreaView
       style={modalVisible ? [styles.container, styles.faded] : styles.container}
@@ -156,7 +151,6 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
         style={styles.saveButton}
         onPress={context?.isEditing ? updateEntries : () => addEntries()}
       >
-        {/* <Pressable style={styles.saveButton} onPress={ () => addEntries()}> */}
         <Text style={styles.saveText}>Spara</Text>
       </Pressable>
       <Pressable
