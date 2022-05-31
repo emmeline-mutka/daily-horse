@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   getFirestore,
+  onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";

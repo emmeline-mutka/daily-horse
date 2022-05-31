@@ -30,20 +30,27 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   const context = useContext(Context);
   const [entryList, setEntryList] = useState<any[]>([]);
   const [entryIndex, setEntryIndex] = useState(Number);
+  const [entryCollection, setEntryCollection] = useState<any>([]);
+  const isFocused = useIsFocused();
+  const firestore = getFirestore();
+  const auth = getAuth();
+
   const emptyEntryNavigation = () => {
     props.navigation.navigate("EmptyEntryScreen");
   };
-  const isFocused = useIsFocused();
 
-  const firestore = getFirestore();
-  const auth = getAuth();
+  const refreshNavigation = () => {
+    props.navigation.navigate("DiaryScreen");
+    console.log("Klickad")
+  };
+
   const readEntries = async () => {
     if (auth.currentUser) {
       const uid = auth.currentUser.uid;
       try {
         const docRef = await getDocs(collection(firestore, uid));
         docRef.forEach((entryItem) => {
-          console.log("Här finns ett inlägg: ", entryItem.data());
+          // console.log("Här finns ett inlägg: ", entryItem.data());
           if (
             !entryList.some(
               (item: { id: any }) => item.id === entryItem.data().id
@@ -64,7 +71,7 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
       try {
         const docRef = await getDocs(collection(firestore, uid));
         docRef.forEach((entryItem) => {
-          console.log("Här finns ett inlägg: ", entryItem.data());
+          console.log("Filter Entries: ", entryItem.data());
           setEntryList(entryList.filter((_, i) => i !== entryIndex));
         });
       } catch (e) {
@@ -73,13 +80,24 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
     }
   };
 
-  const updatedEntries = async () => {
-    
-  }
-
   const entryDetailsNavigation = (item: any) => {
     context?.setItem(item);
     props.navigation.navigate("EntryDetailsScreen");
+  };
+
+  const buildEntries = () => {
+    setEntryCollection(
+      entryList.map((item: {}, index: number) => {
+        return (
+          <Pressable
+            onPress={() => [entryDetailsNavigation(item), setEntryIndex(index)]}
+            key={index}
+          >
+            <EntryComponent item={item} />
+          </Pressable>
+        );
+      })
+    );
   };
 
   useEffect(() => {
@@ -102,7 +120,13 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   }, [context?.entryDeleted]);
 
   useEffect(() => {
-    console.log("EntryList: ", entryList);
+    console.log("Entry List");
+    setEntryCollection([]);
+    if (entryList.length > 0) {
+      console.log("Entry List if");
+      buildEntries();
+    }
+    // console.log("EntryList: ", entryList);
   }, [entryList]);
 
   return (
@@ -112,22 +136,12 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
         style={styles.scrollviewContainer}
       >
         <Text style={styles.diaryTitle}>Dagbok</Text>
+        <Pressable
+          style={styles.refreshButton}
+          onPress={refreshNavigation}
+        ></Pressable>
         {entryList.length > 0 ? (
-          <View>
-            {entryList.map((item: {}, index: number) => {
-              return (
-                <Pressable
-                  onPress={() => [
-                    entryDetailsNavigation(item),
-                    setEntryIndex(index),
-                  ]}
-                  key={index}
-                >
-                  <EntryComponent item={item} />
-                </Pressable>
-              );
-            })}
-          </View>
+          <View>{entryCollection}</View>
         ) : (
           <View style={styles.noEntryContainer}>
             <Text style={styles.noEntryText}>
@@ -165,6 +179,17 @@ const styles = StyleSheet.create({
     fontSize: 32,
     textTransform: "uppercase",
     color: "#ffffff",
+  },
+  refreshButton: {
+    marginVertical: 20,
+    height: 50,
+    width: 50,
+    backgroundColor: "#b83c96",
+    borderWidth: 2,
+    borderColor: "#000000",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
   noEntryContainer: {
     marginTop: 25,
