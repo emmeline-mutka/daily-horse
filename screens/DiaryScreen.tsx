@@ -11,7 +11,6 @@ import {
   Text,
   View,
 } from "react-native";
-//@ts-ignore
 import { EntryButtonComponent } from "../components/EntryButtonComponent";
 import { EntryComponent } from "../components/EntryComponent";
 import { Context } from "../context/Context";
@@ -26,24 +25,19 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   const [entryList, setEntryList] = useState<any[]>([]);
   const [entryIndex, setEntryIndex] = useState(Number);
   const [entryCollection, setEntryCollection] = useState<any>([]);
-  const [orderedEntries, setOrderedEntries] = useState("asc");
   const isFocused = useIsFocused();
   const firestore = getFirestore();
   const auth = getAuth();
 
   const sortedEntries = () => {
-    if (orderedEntries === "asc") {
       const entriesSorted = [...entryList].sort((a, b) =>
         a.date < b.date ? 1 : -1
       );
       setEntryList(entriesSorted);
-      setOrderedEntries("dsc");
-      console.log("Sortering");
-    }
   };
 
   const emptyEntryNavigation = () => {
-    props.navigation.navigate("EmptyEntryScreen");
+    props.navigation.navigate("EditEntryScreen");
   };
 
   function refreshNavigation() {
@@ -56,7 +50,6 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
       try {
         const docRef = await getDocs(collection(firestore, uid));
         docRef.forEach((entryItem) => {
-          // console.log("Här finns ett inlägg: ", entryItem.data());
           if (
             !entryList.some(
               (item: { id: any }) => item.id === entryItem.data().id
@@ -77,7 +70,7 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
       try {
         const docRef = await getDocs(collection(firestore, uid));
         docRef.forEach((entryItem) => {
-          console.log("Filter Entries: ", entryItem.data());
+          console.log(entryItem.data());
           setEntryList(entryList.filter((_, i) => i !== entryIndex));
         });
       } catch (e) {
@@ -108,7 +101,6 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
 
   useEffect(() => {
     readEntries();
-    console.log("Focused ", isFocused);
   }, [isFocused]);
 
   useEffect(() => {
@@ -121,7 +113,6 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   useEffect(() => {
     if (context?.entryDeleted) {
       filterEntries();
-      console.log("Filtered entries ", entryList);
       context?.setEntryDeleted(false);
       context?.setItem({
         date: "",
@@ -133,10 +124,8 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   }, [context?.entryDeleted]);
 
   useEffect(() => {
-    console.log("Entry List");
     setEntryCollection([]);
     if (entryList.length > 0) {
-      console.log("Entry List if");
       buildEntries();
     }
   }, [entryList]);

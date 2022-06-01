@@ -2,6 +2,6 @@ export type StackScreens = {
   LoginScreen: undefined,
   CreateAccountScreen: undefined,
   DiaryScreen: undefined,
-  EmptyEntryScreen: undefined,
+  EditEntryScreen: undefined,
   EntryDetailsScreen: undefined,
 }

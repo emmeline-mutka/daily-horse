@@ -20,17 +20,16 @@ import {
   Modal,
   Alert,
 } from "react-native";
-//@ts-ignore
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
 import { Context } from "../context/Context";
 import { DeleteModalComponent } from "../components/DeleteModalComponent";
 
-interface IEmptyEntryScreen
-  extends NativeStackScreenProps<StackScreens, "EmptyEntryScreen"> {}
+interface IEditEntryScreen
+  extends NativeStackScreenProps<StackScreens, "EditEntryScreen"> {}
 
-export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
+export const EmptyEntryScreen: FC<IEditEntryScreen> = (props) => {
   const context = useContext(Context);
   const firestore = getFirestore();
   const auth = getAuth();
@@ -61,7 +60,6 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
         await updateDoc(docRef, {
           id: docRef.id,
         });
-        console.log("Document written with ID: ", docRef.id);
         props.navigation.navigate("DiaryScreen");
       } catch (e) {
         console.error("Error adding document: ", e);
@@ -73,7 +71,6 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
     if (uid) {
       entryRef = doc(firestore, uid, id);
       entrySnapshot = await getDoc(entryRef);
-      console.log("Entry Ref: ", entryRef);
       props.navigation.navigate("DiaryScreen");
     }
     await updateDoc(entryRef, {
@@ -87,7 +84,6 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
 
   const deleteEntries = async () => {
     await deleteDoc(doc(firestore, uid!, id));
-    console.log("Här är borttaget id: ", id);
     context?.setEntryDeleted(true);
     props.navigation.navigate("DiaryScreen");
   };

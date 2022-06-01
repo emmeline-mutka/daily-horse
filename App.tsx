@@ -9,7 +9,7 @@ import { StackScreens } from "./helpers/types";
 import { LoginScreen } from "./screens/LoginScreen";
 import { CreateAccountScreen } from "./screens/CreateAccountScreen";
 import { DiaryScreen } from "./screens/DiaryScreen";
-import { EmptyEntryScreen } from "./screens/EmptyEntryScreen";
+import { EmptyEntryScreen } from "./screens/EditEntryScreen";
 import { EntryDetailsScreen } from "./screens/EntryDetailsScreen";
 
 firebase.initializeApp(firebaseConfig);
@@ -55,7 +55,7 @@ export default function App() {
             }}
           />
           <Stack.Screen
-            name="EmptyEntryScreen"
+            name="EditEntryScreen"
             component={EmptyEntryScreen}
             options={{
               header: () => null,

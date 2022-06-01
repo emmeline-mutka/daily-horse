@@ -13,7 +13,7 @@ export const EntryDetailsScreen: React.FC<IEntryDetailsScreen> = (props) => {
     props.navigation.goBack()
   }
   const editEntryNavigation = () => {
-    props.navigation.navigate("EmptyEntryScreen")
+    props.navigation.navigate("EditEntryScreen")
     context?.setIsEditing(true) 
   }
 
