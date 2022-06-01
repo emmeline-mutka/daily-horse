@@ -1,14 +1,22 @@
 import React, { useContext, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
-import { StyleSheet, Text, TextInput, View, Image, Pressable, SafeAreaView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Image,
+  Pressable,
+  SafeAreaView,
+} from "react-native";
 //@ts-ignore
 import logoImg from "../assets/img/dh-logo.png";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Context } from "../context/Context";
 
-interface ILoginScreen extends NativeStackScreenProps<StackScreens, "LoginScreen"> {
-}
+interface ILoginScreen
+  extends NativeStackScreenProps<StackScreens, "LoginScreen"> {}
 
 export const LoginScreen: React.FC<ILoginScreen> = (props) => {
   const context = useContext(Context);
@@ -18,15 +26,15 @@ export const LoginScreen: React.FC<ILoginScreen> = (props) => {
   const [isRegisterPressed, setIsRegisterPressed] = useState(false);
   const auth = getAuth();
   const loginUser = () => {
-  signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    props.navigation.navigate("DiaryScreen")
-    const user = userCredential.user;
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-  });
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        props.navigation.navigate("DiaryScreen");
+        const user = userCredential.user;
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
   };
   const createAccountNavigation = () => {
     props.navigation.navigate("CreateAccountScreen");
@@ -38,21 +46,54 @@ export const LoginScreen: React.FC<ILoginScreen> = (props) => {
       <View style={styles.loginContainer}>
         <View style={styles.emailContainer}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.emailInput} onChangeText={(text) => setEmail(text)}
-        value={email} />
+          <TextInput
+            style={styles.emailInput}
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+          />
         </View>
         <View style={styles.passwordContainer}>
           <Text style={styles.label}>Lösenord</Text>
-          <TextInput style={styles.passwordInput} secureTextEntry={true} onChangeText={(text) => setPassword(text)}
-        value={password} />
+          <TextInput
+            style={styles.passwordInput}
+            secureTextEntry={true}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+          />
         </View>
       </View>
-        <Pressable style={isLoginPressed ? [styles.loginButton, styles.onPressIn] : styles.loginButton} onPressIn={() => {setIsLoginPressed(true)}} onPressOut={() => {setIsLoginPressed(false)}} onPress={loginUser}>
-          <Text style={styles.loginText}>Logga in</Text>
-        </Pressable>
-        <Pressable style={isRegisterPressed ? [styles.createButton, styles.onPressIn] : styles.createButton} onPressIn={() => {setIsRegisterPressed(true)}} onPressOut={() => {setIsRegisterPressed(false)}} onPress={createAccountNavigation}>
-          <Text style={styles.createText}>Skapa konto</Text>
-        </Pressable>
+      <Pressable
+        style={
+          isLoginPressed
+            ? [styles.loginButton, styles.onPressIn]
+            : styles.loginButton
+        }
+        onPressIn={() => {
+          setIsLoginPressed(true);
+        }}
+        onPressOut={() => {
+          setIsLoginPressed(false);
+        }}
+        onPress={loginUser}
+      >
+        <Text style={styles.loginText}>Logga in</Text>
+      </Pressable>
+      <Pressable
+        style={
+          isRegisterPressed
+            ? [styles.createButton, styles.onPressIn]
+            : styles.createButton
+        }
+        onPressIn={() => {
+          setIsRegisterPressed(true);
+        }}
+        onPressOut={() => {
+          setIsRegisterPressed(false);
+        }}
+        onPress={createAccountNavigation}
+      >
+        <Text style={styles.createText}>Skapa konto</Text>
+      </Pressable>
     </SafeAreaView>
   );
 };

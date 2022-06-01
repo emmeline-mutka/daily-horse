@@ -82,6 +82,7 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
       entry: diaryEntry,
     });
     context?.setIsEditing(false);
+    context?.setIsUpdated(true);
   };
 
   const deleteEntries = async () => {
