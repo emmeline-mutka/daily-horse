@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   getFirestore,
+  onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -81,6 +82,7 @@ export const EmptyEntryScreen: FC<IEmptyEntryScreen> = (props) => {
       entry: diaryEntry,
     });
     context?.setIsEditing(false);
+    context?.setIsUpdated(true);
   };
 
   const deleteEntries = async () => {

@@ -1,9 +1,5 @@
-import { getAuth } from "firebase/auth";
-import { collection, deleteDoc, doc, getFirestore } from "firebase/firestore";
-import { FC, useContext } from "react";
+import { FC } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import { Context } from "../context/Context";
-//@ts-ignore
 
 interface IDeleteModalComponent {
   yesButton: () => void;
@@ -11,10 +7,6 @@ interface IDeleteModalComponent {
 }
 
 export const DeleteModalComponent: FC<IDeleteModalComponent> = (props) => { 
-  const context = useContext(Context);
-  const firestore = getFirestore();
-  const auth = getAuth();
-  const uid = auth.currentUser?.uid;
 
   return (
     <View style={styles.container}>

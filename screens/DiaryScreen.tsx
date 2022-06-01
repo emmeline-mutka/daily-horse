@@ -1,11 +1,5 @@
 import React, { FC, useContext, useEffect, useState } from "react";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  getFirestore,
-} from "firebase/firestore";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
@@ -22,6 +16,7 @@ import { EntryButtonComponent } from "../components/EntryButtonComponent";
 import { EntryComponent } from "../components/EntryComponent";
 import { Context } from "../context/Context";
 import { useIsFocused } from "@react-navigation/native";
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface IDiaryScreen
   extends NativeStackScreenProps<StackScreens, "DiaryScreen"> {}
@@ -30,20 +25,38 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   const context = useContext(Context);
   const [entryList, setEntryList] = useState<any[]>([]);
   const [entryIndex, setEntryIndex] = useState(Number);
+  const [entryCollection, setEntryCollection] = useState<any>([]);
+  const [orderedEntries, setOrderedEntries] = useState("asc");
+  const isFocused = useIsFocused();
+  const firestore = getFirestore();
+  const auth = getAuth();
+
+  const sortedEntries = () => {
+    if (orderedEntries === "asc") {
+      const entriesSorted = [...entryList].sort((a, b) =>
+        a.date < b.date ? 1 : -1
+      );
+      setEntryList(entriesSorted);
+      setOrderedEntries("dsc");
+      console.log("Sortering");
+    }
+  };
+
   const emptyEntryNavigation = () => {
     props.navigation.navigate("EmptyEntryScreen");
   };
-  const isFocused = useIsFocused();
 
-  const firestore = getFirestore();
-  const auth = getAuth();
+  function refreshNavigation() {
+    props.navigation.replace("DiaryScreen");
+  }
+
   const readEntries = async () => {
     if (auth.currentUser) {
       const uid = auth.currentUser.uid;
       try {
         const docRef = await getDocs(collection(firestore, uid));
         docRef.forEach((entryItem) => {
-          console.log("Här finns ett inlägg: ", entryItem.data());
+          // console.log("Här finns ett inlägg: ", entryItem.data());
           if (
             !entryList.some(
               (item: { id: any }) => item.id === entryItem.data().id
@@ -64,7 +77,7 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
       try {
         const docRef = await getDocs(collection(firestore, uid));
         docRef.forEach((entryItem) => {
-          console.log("Här finns ett inlägg: ", entryItem.data());
+          console.log("Filter Entries: ", entryItem.data());
           setEntryList(entryList.filter((_, i) => i !== entryIndex));
         });
       } catch (e) {
@@ -73,19 +86,37 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
     }
   };
 
-  const updatedEntries = async () => {
-    
-  }
-
   const entryDetailsNavigation = (item: any) => {
     context?.setItem(item);
     props.navigation.navigate("EntryDetailsScreen");
+  };
+
+  const buildEntries = () => {
+    setEntryCollection(
+      entryList.map((item: {}, index: number) => {
+        return (
+          <Pressable
+            onPress={() => [entryDetailsNavigation(item), setEntryIndex(index)]}
+            key={index}
+          >
+            <EntryComponent item={item} />
+          </Pressable>
+        );
+      })
+    );
   };
 
   useEffect(() => {
     readEntries();
     console.log("Focused ", isFocused);
   }, [isFocused]);
+
+  useEffect(() => {
+    if (context?.isUpdated) {
+      refreshNavigation();
+      context?.setIsUpdated(false);
+    }
+  }, [context?.isUpdated]);
 
   useEffect(() => {
     if (context?.entryDeleted) {
@@ -102,7 +133,12 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
   }, [context?.entryDeleted]);
 
   useEffect(() => {
-    console.log("EntryList: ", entryList);
+    console.log("Entry List");
+    setEntryCollection([]);
+    if (entryList.length > 0) {
+      console.log("Entry List if");
+      buildEntries();
+    }
   }, [entryList]);
 
   return (
@@ -112,22 +148,11 @@ export const DiaryScreen: FC<IDiaryScreen> = (props) => {
         style={styles.scrollviewContainer}
       >
         <Text style={styles.diaryTitle}>Dagbok</Text>
+        <Pressable style={styles.sortedButton} onPress={sortedEntries}>
+        <MaterialIcons name="update" size={24} color="#ffffff" />
+        </Pressable>
         {entryList.length > 0 ? (
-          <View>
-            {entryList.map((item: {}, index: number) => {
-              return (
-                <Pressable
-                  onPress={() => [
-                    entryDetailsNavigation(item),
-                    setEntryIndex(index),
-                  ]}
-                  key={index}
-                >
-                  <EntryComponent item={item} />
-                </Pressable>
-              );
-            })}
-          </View>
+          <View>{entryCollection}</View>
         ) : (
           <View style={styles.noEntryContainer}>
             <Text style={styles.noEntryText}>
@@ -165,6 +190,15 @@ const styles = StyleSheet.create({
     fontSize: 32,
     textTransform: "uppercase",
     color: "#ffffff",
+  },
+  sortedButton: {
+    position: "absolute",
+    top: 35,
+    right: 80,
+    height: 50,
+    width: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
   noEntryContainer: {
     marginTop: 25,
