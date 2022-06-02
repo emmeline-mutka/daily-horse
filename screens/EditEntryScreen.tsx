@@ -30,15 +30,15 @@ interface IEditEntryScreen
   extends NativeStackScreenProps<StackScreens, "EditEntryScreen"> {}
 
 export const EmptyEntryScreen: FC<IEditEntryScreen> = (props) => {
-  const context = useContext(Context);
-  const firestore = getFirestore();
-  const auth = getAuth();
-  const uid = auth.currentUser?.uid;
   const [dateToday, setDateToday] = useState(null);
   const [entryTitle, setEntryTitle] = useState(String);
   const [diaryEntry, setDiaryEntry] = useState(String);
   const [modalVisible, setModalVisible] = useState(false);
-  
+  const context = useContext(Context);
+  const firestore = getFirestore();
+  const auth = getAuth();
+  const uid = auth.currentUser?.uid;
+
   let id = context?.item.id;
   let entryRef: any;
   let entrySnapshot: any;
@@ -65,6 +65,15 @@ export const EmptyEntryScreen: FC<IEditEntryScreen> = (props) => {
         console.error("Error adding document: ", e);
       }
     }
+    if (!entryTitle) {
+      alert("Du glömde skriva en titel");
+      return;
+    }
+    if (!diaryEntry) {
+      alert("Du glömde skriva ett inlägg");
+      return;
+    }
+    console.log("Inlägget är sparat");
   };
 
   const updateEntries = async () => {
@@ -90,7 +99,12 @@ export const EmptyEntryScreen: FC<IEditEntryScreen> = (props) => {
 
   useEffect(() => {
     let today = new Date();
-    let date: any = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    let date: any =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
     setDateToday(date);
   }, []);
 

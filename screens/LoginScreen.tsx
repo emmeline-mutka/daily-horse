@@ -19,7 +19,6 @@ interface ILoginScreen
   extends NativeStackScreenProps<StackScreens, "LoginScreen"> {}
 
 export const LoginScreen: React.FC<ILoginScreen> = (props) => {
-  const context = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoginPressed, setIsLoginPressed] = useState(false);

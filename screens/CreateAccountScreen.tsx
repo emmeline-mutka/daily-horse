@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackScreens } from "../helpers/types";
 import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 //@ts-ignore
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -14,6 +15,11 @@ export const CreateAccountScreen: React.FC<ICreateAccountScreen> = (props) => {
   const [password, setPassword] = useState("");
   const [isPressed, setIsPressed] = useState(false)
   const auth = getAuth();
+
+  const goBackNav = () => {
+    props.navigation.goBack();
+  };
+
   const registerUser = () => {
     createUserWithEmailAndPassword (auth, email, password)
   .then((userCredential) => {
@@ -24,12 +30,16 @@ export const CreateAccountScreen: React.FC<ICreateAccountScreen> = (props) => {
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-    console.log(errorMessage)
+    alert(errorMessage);
+    console.log(errorMessage);
   });
 };
   
   return (
     <View style={styles.container}>
+      <Pressable style={styles.arrowBack} onPress={goBackNav}>
+        <Ionicons name="arrow-back-circle-outline" size={48} color="#ffffff" />
+      </Pressable>
       <Text style={styles.createTitle}>Skapa konto</Text>
       <View style={styles.createContainer}>
         <View style={styles.emailContainer}>
@@ -59,6 +69,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#5c2b81",
     width: "100%",
     alignItems: "center",
+  },
+   arrowBack: {
+    position: "absolute",
+    top: 30,
+    left: 15,
   },
   createTitle: {
     marginTop: 160,
